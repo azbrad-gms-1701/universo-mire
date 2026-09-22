@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#080b19" />
+    <meta name="description" content="Cada flor es una pequeña estrella. Un universo de flores amarillas para Mire, la mejor amiga en todos los idiomas." />
+    <title>El Universo de Mire</title>
+    <link rel="icon" type="image/svg+xml" href="./flower.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="experience">
+      <canvas id="universe" aria-hidden="true"></canvas>
+      <div class="atmosphere" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <header class="masthead">
+        <a class="wordmark" href="./" aria-label="El Universo de Mire, inicio">
+          <img src="./flower.svg" width="27" height="27" alt="" />
+          <span>El Universo de Mire</span>
+        </a>
+        <span class="little-infinity">Un pequeño infinito, para ti.</span>
+      </header>
+
+      <main class="core">
+        <p class="prelude">Todo un universo, una sola</p>
+        <h1>Mire<span aria-hidden="true">.</span></h1>
+        <div class="core-divider" aria-hidden="true"><i></i><span>✧</span><i></i></div>
+        <p class="dedication">La mejor amiga.<br />En este y en todos los idiomas.</p>
+      </main>
+
+      <div id="labels" aria-label="Flores para Mire"></div>
+      <p id="flower-message" class="flower-message" aria-live="polite" aria-atomic="true"></p>
+
+      <footer class="footer">
+        <button id="pause" class="quiet-button" type="button" aria-label="Pausar el movimiento" aria-pressed="false">
+          <svg class="pause-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3v10M11 3v10" /></svg>
+          <svg class="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m5 3 8 5-8 5Z" /></svg>
+          <span id="pause-label">Pausar</span>
+        </button>
+        <p class="interaction-hint"><span class="hint-desktop">Mueve el cursor. Descubre una flor.</span><span class="hint-touch">Desliza despacio. Toca una flor.</span></p>
+        <button id="open-flowers" class="quiet-button catalog-button" type="button" aria-haspopup="dialog">En todos los idiomas <span aria-hidden="true">✧</span></button>
+      </footer>
+
+      <p class="fallback" hidden>La escena 3D no está disponible en este navegador. Cada una de estas flores sigue siendo para ti.</p>
+      <noscript><p class="fallback">Activa JavaScript para descubrir el universo de flores.</p></noscript>
+    </div>
+
+    <dialog id="flower-catalog" aria-labelledby="catalog-title">
+      <button id="close-flowers" class="close-button" aria-label="Cerrar los idiomas" type="button">×</button>
+      <p class="catalog-prelude">Hay muchas formas de decirlo</p>
+      <h2 id="catalog-title">La mejor amiga.</h2>
+      <p class="catalog-description">Y en todas, pienso en ti.</p>
+      <ul id="translation-list"></ul>
+    </dialog>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

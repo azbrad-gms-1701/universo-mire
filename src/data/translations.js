@@ -1,0 +1,17 @@
+export const translations = [
+  { text: 'La mejor amiga', language: 'Español', lang: 'es' },
+  { text: 'Best friend', language: 'English', lang: 'en' },
+  { text: 'Meilleure amie', language: 'Français', lang: 'fr' },
+  { text: 'La migliore amica', language: 'Italiano', lang: 'it' },
+  { text: 'Beste Freundin', language: 'Deutsch', lang: 'de' },
+  { text: 'Melhor amiga', language: 'Português', lang: 'pt' },
+  { text: '親友', language: '日本語', lang: 'ja' },
+  { text: '최고의 친구', language: '한국어', lang: 'ko' },
+  { text: 'La millor amiga', language: 'Català', lang: 'ca' },
+  { text: 'Cea mai bună prietenă', language: 'Română', lang: 'ro' },
+  { text: 'Najlepsza przyjaciółka', language: 'Polski', lang: 'pl' },
+  { text: 'Beste vriendin', language: 'Nederlands', lang: 'nl' },
+  { text: 'Bästa vän', language: 'Svenska', lang: 'sv' },
+  { text: 'En iyi arkadaş', language: 'Türkçe', lang: 'tr' },
+  { text: 'Καλύτερη φίλη', language: 'Ελληνικά', lang: 'el' },
+];
