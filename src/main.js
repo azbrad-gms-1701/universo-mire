@@ -16,21 +16,36 @@ for (const translation of translations) {
   const item = document.createElement('li');
   const text = document.createElement('span');
   text.lang = translation.lang;
+  text.dir = translation.dir || 'auto';
   text.textContent = translation.text;
   const language = document.createElement('small');
   language.textContent = translation.language;
   item.append(text, language);
   document.querySelector('#translation-list').append(item);
 }
+document.querySelector('#language-count').textContent = `${translations.length} formas de decirlo`;
+const search = document.querySelector('#language-search');
+const normalize = value => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase().trim();
+search.addEventListener('input', () => {
+  const query = normalize(search.value);
+  let count = 0;
+  [...document.querySelector('#translation-list').children].forEach((item, index) => {
+    const translation = translations[index];
+    item.hidden = !normalize(`${translation.text} ${translation.language} ${translation.lang}`).includes(query);
+    if (!item.hidden) count++;
+  });
+  document.querySelector('#language-empty').hidden = count > 0;
+});
 
 function showMessage(translation) {
   message.replaceChildren();
   message.classList.toggle('is-visible', Boolean(translation));
   if (!translation) return;
   const language = document.createElement('small');
-  language.textContent = translation.language;
+  language.textContent = translation.flower ? `${translation.language} · ${translation.flower}` : translation.language;
   const text = document.createElement('span');
   text.lang = translation.lang;
+  text.dir = translation.dir || 'auto';
   text.textContent = translation.text;
   message.append(language, text);
 }

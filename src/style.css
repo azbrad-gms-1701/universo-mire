@@ -26,9 +26,9 @@ button { cursor: pointer; }
 .wordmark img { opacity: .85; }
 .little-infinity { color: #b1aba1; font: italic 17px 'Cormorant Garamond', Georgia, serif; }
 .core { position: absolute; z-index: 2; top: 48.5%; left: 50%; width: min(480px, 89vw); text-align: center; transform: translate(-50%, -50%); pointer-events: none; }
-.core::before { content: ''; position: absolute; z-index: -1; inset: -45% -20%; border-radius: 50%; background: radial-gradient(ellipse, #0f101ade, #1114204d 42%, transparent 66%); }
+.core::before { content: ''; position: absolute; z-index: -1; inset: -22% -6%; border-radius: 50%; background: radial-gradient(ellipse, #080b198c, #11142026 44%, transparent 70%); }
 .prelude { margin: 0 0 4px; font: italic clamp(16px, 1.5vw, 21px)/1.4 'Cormorant Garamond', Georgia, serif; color: #d5c3a1; }
-h1 { margin: 0; font: 400 clamp(104px, 12vw, 182px)/.92 'Cormorant Garamond', Georgia, serif; letter-spacing: -.067em; color: #fff4d9; text-shadow: 0 0 45px #f0c66340, 0 2px 30px #070b17; }
+h1 { margin: 0; font: 400 clamp(104px, 10vw, 154px)/.92 'Cormorant Garamond', Georgia, serif; letter-spacing: -.067em; color: #fff4d9; text-shadow: 0 0 45px #f0c66340, 0 2px 30px #070b17; }
 h1 span { color: #edca75; font-size: .6em; margin-left: .01em; }
 .core-divider { display: flex; gap: 13px; justify-content: center; align-items: center; margin: 24px auto 16px; color: #e5bf69; font-size: 18px; }
 .core-divider i { width: 37px; height: 1px; background: linear-gradient(90deg, transparent, #d4b26577); }
@@ -72,6 +72,12 @@ dialog::backdrop { background: #040611b8; backdrop-filter: blur(12px); }
 .catalog-prelude { margin: 0 0 6px; text-align: center; font: italic 18px 'Cormorant Garamond', Georgia, serif; color: #c4b391; }
 h2 { margin: 0; text-align: center; font: 400 44px/1.2 'Cormorant Garamond', Georgia, serif; letter-spacing: -.025em; }
 .catalog-description { text-align: center; font-size: 12px; color: #c1b59e; margin: 12px 0 30px; }
+.language-search-label { display: block; margin-bottom: 10px; font-size: 11px; color: #c1b59e; }
+.language-search { width: 100%; min-height: 44px; padding: 10px 13px; margin-bottom: 20px; border: 1px solid #cfb37850; border-radius: 4px; background: #080b1966; color: var(--cream); font: inherit; font-size: 13px; }
+.language-search::placeholder { color: #b6ab91; }
+.language-search:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
+#translation-list [lang='ar'], #translation-list [lang='he'], #translation-list [lang='hi'] { display: block; line-height: 1.65; font-family: system-ui, sans-serif; font-size: 18px; }
+.flower-label [dir='rtl'], .flower-message [dir='rtl'] { display: block; font-family: system-ui, sans-serif; }
 #translation-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 26px; list-style: none; padding: 0; margin: 0; }
 #translation-list li { padding: 13px 0; border-top: 1px solid #c9b07926; font: 400 20px/1.25 'Cormorant Garamond', Georgia, serif; }
 #translation-list small { display: block; margin-top: 5px; font: 400 10px/1.4 'Manrope', sans-serif; color: #b6ab91; }

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { createFlowerLibrary, createFlower, petalGeometry } from './flowers.js';
-import { createAtmosphere } from '../effects/atmosphere.js';
+import { createFlowerLibrary, createFlower, petalGeometry, flowerNames } from './flowers.js';
+import { createAtmosphere } from '../effects/galactic-atmosphere.js';
+import { spiralPoint, scatterPoint } from './galaxy.js';
 import { translations } from '../data/translations.js';
 import { random, damp, easeOut, TAU } from './math.js';
 
@@ -17,11 +18,11 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !compact, alpha: true, powerPreference: 'default' });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.22;
+  renderer.toneMappingExposure = 1.1;
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x0c1021, .011);
   const camera = new THREE.PerspectiveCamera(46, 1, .1, 140);
-  scene.add(new THREE.HemisphereLight(0xcad5f4, 0x332040, 1.45));
+  scene.add(new THREE.HemisphereLight(0xa8bcd8, 0x291c35, 1.0));
   const sunlight = new THREE.DirectionalLight(0xffe8b5, 2.3);
   sunlight.position.set(-4, 6, 13);
   scene.add(sunlight);
@@ -33,8 +34,8 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
   scene.add(coreLight);
 
   const library = createFlowerLibrary();
-  const atmosphere = createAtmosphere(scene, compact);
-  const flowerCount = compact ? 40 : 54;
+  const atmosphere = createAtmosphere(scene, compact, renderer);
+  const flowerCount = compact ? 44 : 60;
   const flowers = [];
   const hits = [];
   const pointer = new THREE.Vector2(10, 10);
@@ -59,15 +60,14 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     let base;
     if (i < anchors.length) base = new THREE.Vector3(...anchors[i]);
     else {
-      const angle = (i - anchors.length) * 2.399963;
-      const radius = 8 + random(i + 6) * 12;
-      base = new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius * .6, -11 + random(i + 35) * 17);
+      const radius = 6.5 + random(i + 6) * 15;
+      base = new THREE.Vector3(...(i % 5 === 0 ? scatterPoint(i, radius) : spiralPoint(i, radius, 1.2)));
     }
-    let scale = i < 15 ? .59 + random(i + 23) * .29 : .23 + random(i + 63) * .5;
+    let scale = i < 15 ? .66 + random(i + 23) * .29 : .29 + random(i + 63) * .56;
     if (i === flowerCount - 2) { base.set(-12.8, -7.7, 10.5); scale = 1.6; }
     if (i === flowerCount - 1) { base.set(14.8, 5.7, 9); scale = 1.38; }
     Object.assign(flower, { index: i, base, scale, phase: random(i + 41) * TAU, angle: 0, hover: 0, speed: (.008 + random(i + 91) * .01) * (i % 2 ? -1 : 1), button: null, labelVisible: false, screenX: 0, screenY: 0 });
-    if (i < 15) {
+    if (i < translations.length) {
       const translation = translations[i];
       const button = document.createElement('button');
       button.type = 'button';
@@ -77,9 +77,10 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
       label.className = 'flower-label';
       const text = document.createElement('span');
       text.lang = translation.lang;
+      text.dir = translation.dir || 'auto';
       text.textContent = translation.text;
       const language = document.createElement('small');
-      language.textContent = translation.language;
+      language.textContent = `${translation.language} · ${flowerNames[flower.type]}`;
       label.append(text, language);
       button.append(label);
       labels.append(button);
@@ -95,12 +96,14 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     flowers.push(flower);
   }
 
-  // Twelve instanced meshes draw all 40–54 blossoms. Transforms stay independent.
+  // Two draws per species, plus foliage only for the stemmed varieties.
   hits.length = 0;
   const batches = library.map((geometry, type) => {
     const entries = flowers.filter(flower => flower.type === type);
     const petals = new THREE.InstancedMesh(geometry.petals, entries[0].petals.material, entries.length);
     const hearts = new THREE.InstancedMesh(geometry.heart, entries[0].heart.material, entries.length);
+    const foliage = geometry.foliage ? new THREE.InstancedMesh(geometry.foliage, new THREE.MeshStandardMaterial({ color: 0x67734a, roughness: .9, side: THREE.DoubleSide }), entries.length) : null;
+    if (foliage) { foliage.instanceMatrix.setUsage(THREE.DynamicDrawUsage); foliage.frustumCulled = false; scene.add(foliage); }
     for (const mesh of [petals, hearts]) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.frustumCulled = false;
@@ -115,7 +118,7 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
       if (index > 0) { flower.petals.material.dispose(); flower.heart.material.dispose(); }
     });
     petals.instanceColor.setUsage(THREE.DynamicDrawUsage);
-    return { petals, hearts, entries };
+    return { petals, hearts, foliage, entries };
   });
   const instanceTint = new THREE.Color();
 
@@ -138,7 +141,7 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
   function selectFlower(flower) {
     selected = flower;
     selectedUntil = uiTime + 5;
-    onSelect(translations[flower.index % translations.length]);
+    onSelect({ ...translations[flower.index % translations.length], flower: flowerNames[flower.type] });
     requestFrame();
   }
 
@@ -150,6 +153,7 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     camera.aspect = width / height;
     camera.fov = portrait ? 50 : 46;
     camera.updateProjectionMatrix();
+    atmosphere.resize(camera.aspect, horizontal, portrait);
     renderer.setPixelRatio(Math.min(devicePixelRatio, qualityReduced ? 1 : compact || portrait ? 1.35 : 1.75));
     renderer.setSize(width, height, false);
     const bounds = coreBounds.getBoundingClientRect();
@@ -249,10 +253,26 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
       flower.group.position.z += Math.sin(animationTime * .13 + flower.phase) * .42;
       if (moving) flower.group.rotation.z += dt * (.018 + random(flower.index) * .018) * (active ? .25 : 1);
       flower.group.scale.setScalar(flower.scale * (portrait ? .78 : 1) * (.75 + intro * .25) * (1 + flower.hover * .16));
+      // Reserve a soft rectangle around the dedication, even while flowers orbit.
+      projected.copy(flower.group.position).project(camera);
+      const coreX = (safeCore.left + safeCore.right) / 2;
+      const coreY = (safeCore.top + safeCore.bottom) / 2;
+      const radiusX = (safeCore.right - safeCore.left) / 2 + 30;
+      const radiusY = (safeCore.bottom - safeCore.top) / 2 + 28;
+      let dx = (projected.x * .5 + .5) * width - coreX;
+      const dy = (-projected.y * .5 + .5) * height - coreY;
+      if (Math.abs(dx) + Math.abs(dy) < .1) dx = .1;
+      const coreDistance = Math.pow((dx / radiusX) ** 4 + (dy / radiusY) ** 4, .25);
+      if (coreDistance < 1) {
+        projected.x = ((coreX + dx / coreDistance) / width - .5) * 2;
+        projected.y = -((coreY + dy / coreDistance) / height - .5) * 2;
+        flower.group.position.copy(projected.unproject(camera));
+      }
       flower.group.updateMatrix();
       const batch = batches[flower.type];
       batch.petals.setMatrixAt(flower.batchIndex, flower.group.matrix);
       batch.hearts.setMatrixAt(flower.batchIndex, flower.group.matrix);
+      batch.foliage?.setMatrixAt(flower.batchIndex, flower.group.matrix);
       instanceTint.setRGB(1 + flower.hover * .55, 1 + flower.hover * .45, 1 + flower.hover * .25);
       batch.petals.setColorAt(flower.batchIndex, instanceTint);
       projected.copy(flower.group.position).project(camera);
@@ -261,6 +281,7 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     for (const batch of batches) {
       batch.petals.instanceMatrix.needsUpdate = true;
       batch.hearts.instanceMatrix.needsUpdate = true;
+      if (batch.foliage) batch.foliage.instanceMatrix.needsUpdate = true;
       batch.petals.instanceColor.needsUpdate = true;
       batch.petals.computeBoundingSphere();
       batch.hearts.computeBoundingSphere();
@@ -296,6 +317,8 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     }
     if (frameCount % 60 === 0) {
       canvas.dataset.flowers = String(flowerCount);
+      canvas.dataset.varieties = String(library.length);
+      canvas.dataset.languages = String(translations.length);
       canvas.dataset.visibleFlowers = String(visibleCount);
       canvas.dataset.drawCalls = String(renderer.info.render.calls);
       canvas.dataset.triangles = String(renderer.info.render.triangles);
@@ -335,6 +358,7 @@ export function createUniverse({ canvas, labels, motionQuery, onSelect, onFailur
     setSuspended(value) { suspended = value; stop(); if (!value) requestFrame(); },
     destroy() {
       stop(); events.abort();
+      atmosphere.dispose();
       const geometries = new Set(), materials = new Set(), textures = new Set();
       scene.traverse(object => {
         if (object.geometry) geometries.add(object.geometry);
